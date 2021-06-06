@@ -19,7 +19,7 @@ class TaskController extends Controller
 
     function show($id)
     {
-        $task = Task::findOrFail($id);
+        $task = Task::where('user_id', auth()->user()->id)->findOrFail($id);
         return response()->json(['success' => true, 'data' => $task]);
     }
 
@@ -50,7 +50,7 @@ class TaskController extends Controller
             'description' => 'required',
         ]);
 
-        $task = Task::findOrFail($id);
+        $task = Task::where('user_id', auth()->user()->id)->findOrFail($id);
 
         $name = $request->get('name');
         $description = $request->get('description');
@@ -64,7 +64,7 @@ class TaskController extends Controller
 
     function destroy($id)
     {
-        $task = Task::findOrFail($id);
-        return response()->json(['success' => true, 'data' => $task->delete()]);
+        $task = Task::where('user_id', auth()->user()->id)->findOrFail($id);
+        return response()->json(['success' => $task->delete()]);
     }
 }
