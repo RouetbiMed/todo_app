@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
@@ -19,11 +20,7 @@ class AuthController extends Controller
         $email = $request->get('email');
         $password = $request->get('password');
 
-        $user = new \App\Models\User();
-        $user->name = $name;
-        $user->email = $email;
-        $user->password = bcrypt($password);
-        $user->save();
+        $user = UserRepository::create($name, $email, $password);
 
         return response()->json(['success' => true, 'token' => $user->createToken('auth_token')->plainTextToken]);
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Task;
+use App\Repositories\TaskRepository;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -34,11 +35,7 @@ class TaskController extends Controller
         $description = $request->get('description');
         $user = auth()->user();
 
-        $task = new Task();
-        $task->user()->associate($user);
-        $task->name = $name;
-        $task->description = $description;
-        $task->save();
+        $task = TaskRepository::create($user, $name, $description);
 
         return response()->json(['success' => true, 'data' => $task]);
     }
@@ -48,16 +45,16 @@ class TaskController extends Controller
         $request->validate([
             'name' => 'required',
             'description' => 'required',
+            'status' => 'required|integer|in:' . implode(',', Task::STATUS)
         ]);
 
-        $task = Task::where('user_id', auth()->user()->id)->findOrFail($id);
+        $foundTask = Task::where('user_id', auth()->user()->id)->findOrFail($id);
 
         $name = $request->get('name');
         $description = $request->get('description');
+        $status = $request->get('status');
 
-        $task->name = $name;
-        $task->description = $description;
-        $task->save();
+        $task = (new TaskRepository($foundTask))->update($name, $description, $status);
 
         return response()->json(['success' => true, 'data' => $task]);
     }
