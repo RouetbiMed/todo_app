@@ -1,4 +1,4 @@
-import {LOGIN_START, LOGIN_FAILED} from "../types";
+import {LOGIN_START, LOGIN_SUCCESS, LOGIN_FAILED, LOGOUT_USER} from "../types";
 
 const INITIAL_STATE = {
     loggedIn: false,
@@ -11,8 +11,12 @@ export function authReducer(state = INITIAL_STATE, action) {
     switch (action.type) {
         case LOGIN_START:
             return {...state, loading: true};
+        case LOGIN_SUCCESS:
+            return {...state, loading: false, loggedIn: true, token: action.payload};
         case LOGIN_FAILED:
             return {...state, loading: false, error: action.payload};
+        case LOGOUT_USER:
+            return INITIAL_STATE;
         default:
             return state;
     }

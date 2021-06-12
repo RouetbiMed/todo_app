@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -11,7 +11,8 @@ import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import {Link as RouterLink} from 'react-router-dom';
-
+import {useDispatch, useSelector} from 'react-redux';
+import {login} from '../../redux/actions/authActions'
 import Copyright from '../../components/Copyright';
 
 const useStyles = makeStyles((theme) => ({
@@ -36,6 +37,23 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SignInPage() {
     const classes = useStyles();
+    const {loading, error} = useSelector((state) => state.auth);
+    const dispatch = useDispatch();
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        const trimmedEmail = email.trim();
+        const trimmedPassword = password.trim();
+
+        //TODO validation
+
+        if (!!trimmedEmail && !!trimmedPassword) {
+            dispatch(login(trimmedEmail, trimmedPassword));
+        }
+    };
 
     return (
         <Container component="main" maxWidth="xs">
@@ -47,7 +65,7 @@ export default function SignInPage() {
                 <Typography component="h1" variant="h5">
                     Sign in
                 </Typography>
-                <form className={classes.form} noValidate>
+                <form className={classes.form} onSubmit={handleSubmit} noValidate>
                     <TextField
                         variant="outlined"
                         margin="normal"
@@ -58,6 +76,8 @@ export default function SignInPage() {
                         name="email"
                         autoComplete="email"
                         autoFocus
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                     />
                     <TextField
                         variant="outlined"
@@ -69,6 +89,8 @@ export default function SignInPage() {
                         type="password"
                         id="password"
                         autoComplete="current-password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                     />
                     <Button
                         type="submit"
