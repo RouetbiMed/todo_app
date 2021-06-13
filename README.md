@@ -24,4 +24,6 @@ Install docker containers with sail package
 
 Run the database migrations to create the new tables
 
-    ./vendor/bin/sail php artisan migrate          
+    ./vendor/bin/sail php artisan migrate    
+    
+Once the application's containers have been started, you may access the project in your web browser at: http://localhost.  
