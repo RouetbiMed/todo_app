@@ -6,6 +6,8 @@ import TextField from '@material-ui/core/TextField';
 import Link from '@material-ui/core/Link';
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
+import Alert from '@material-ui/lab/Alert';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
@@ -14,6 +16,7 @@ import {Link as RouterLink} from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux';
 import {login} from '../../redux/actions/authActions'
 import Copyright from '../../components/Copyright';
+import {isValidEmail} from "../../utils/helpers";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -40,17 +43,33 @@ export default function SignInPage() {
     const {loading, error} = useSelector((state) => state.auth);
     const dispatch = useDispatch();
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState({value: '', error: ''});
+    const [password, setPassword] = useState({value: '', error: ''});
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const trimmedEmail = email.trim();
-        const trimmedPassword = password.trim();
+        if (loading) return;
+        const trimmedEmail = email.value.trim();
+        const trimmedPassword = password.value.trim();
 
-        //TODO validation
+        if (trimmedEmail === '') {
+            setEmail({...email, error: 'Email is required'});
+        }
 
-        if (!!trimmedEmail && !!trimmedPassword) {
+        if (trimmedPassword === '') {
+            setPassword({...password, error: 'Password is required'});
+        }
+
+
+        if (trimmedEmail && !isValidEmail(trimmedEmail)) {
+            setEmail({...email, error: 'Email need to be a valid email'});
+        }
+
+        if (trimmedPassword && trimmedPassword.length < 6) {
+            setPassword({...password, error: 'Password need to be 6 characters as least'});
+        }
+
+        if (trimmedEmail && trimmedPassword && isValidEmail(trimmedEmail) && trimmedPassword.length >= 6) {
             dispatch(login(trimmedEmail, trimmedPassword));
         }
     };
@@ -66,7 +85,10 @@ export default function SignInPage() {
                     Sign in
                 </Typography>
                 <form className={classes.form} onSubmit={handleSubmit} noValidate>
+                    {error && <Alert severity="error">{error}</Alert>}
                     <TextField
+                        error={!!email.error}
+                        helperText={email.error}
                         variant="outlined"
                         margin="normal"
                         required
@@ -76,10 +98,12 @@ export default function SignInPage() {
                         name="email"
                         autoComplete="email"
                         autoFocus
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={email.value}
+                        onChange={(e) => setEmail({value: e.target.value, error: ''})}
                     />
                     <TextField
+                        error={!!password.error}
+                        helperText={password.error}
                         variant="outlined"
                         margin="normal"
                         required
@@ -89,8 +113,8 @@ export default function SignInPage() {
                         type="password"
                         id="password"
                         autoComplete="current-password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        value={password.value}
+                        onChange={(e) => setPassword({value: e.target.value, error: ''})}
                     />
                     <Button
                         type="submit"
@@ -99,7 +123,9 @@ export default function SignInPage() {
                         color="primary"
                         className={classes.submit}
                     >
-                        Sign In
+                        {loading ? (
+                            <CircularProgress size={20} color="secondary"/>
+                        ) : 'Sign In'}
                     </Button>
                     <Grid container>
                         <Grid item>

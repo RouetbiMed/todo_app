@@ -7,7 +7,7 @@ import {
 import history from '../../utils/history';
 import axios from 'axios';
 
-import {LOGIN_ENDPOINT, LOGOUT_ENDPOINT} from "../../utils/endPoints";
+import {LOGIN_ENDPOINT, LOGOUT_ENDPOINT, REGISTER_ENDPOINT} from "../../utils/endPoints";
 
 export function login(email, password) {
     return async (dispatch) => {
@@ -23,7 +23,7 @@ export function login(email, password) {
             dispatch({type: LOGIN_SUCCESS, payload: response.data.token});
             history.push('/');
         } catch (e) {
-            dispatch({type: LOGIN_FAILED, payload: e.message});
+            dispatch({type: LOGIN_FAILED, payload: e.response.data.message});
         }
     };
 }
@@ -44,4 +44,26 @@ export function logout() {
         dispatch({type: LOGOUT_USER});
         history.push("/");
     }
+}
+
+export function register(name, email, password, passwordConfirmation) {
+    return async (dispatch) => {
+        dispatch({type: LOGIN_START});
+
+        let formData = new FormData();
+        formData.append("email", email);
+        formData.append("name", name);
+        formData.append("password", password);
+        formData.append("password_confirmation", passwordConfirmation);
+
+        try {
+            const response = await axios.post(REGISTER_ENDPOINT, formData);
+            localStorage.setItem("token", response.data.token);
+            dispatch({type: LOGIN_SUCCESS, payload: response.data.token});
+            history.push('/');
+        } catch (e) {
+            console.log(e.message);
+            dispatch({type: LOGIN_FAILED, payload: e.message});
+        }
+    };
 }
