@@ -110,7 +110,7 @@ export default function TasksPage() {
                 )
             }
         ]
-    }, []);
+    }, [currentPage, perPage]);
 
     const handlePageChange = page => {
         dispatch(fetchTasks(page, perPage));
