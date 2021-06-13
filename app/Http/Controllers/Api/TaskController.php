@@ -13,9 +13,11 @@ class TaskController extends Controller
     {
         $user = auth()->user();
 
-        $tasks = $user->tasks()->simplePaginate(10);
+        $perPage = request()->get('per_page', 10);
 
-        return response()->json(['success' => true, 'data' => $tasks]);
+        $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate($perPage);
+
+        return response()->json($tasks);
     }
 
     function show($id)
