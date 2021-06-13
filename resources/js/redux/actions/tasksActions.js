@@ -4,11 +4,11 @@ import {
     FETCH_TASKS_FAILED,
     CREATE_TASK_SUCCESS,
     EDIT_TASK_SUCCESS,
-    SUBMIT_TASK_FORM
+    SUBMIT_TASK_FORM, TOGGLE_TASK_STATUS_SUCCESS
 } from "../types";
 import axios from 'axios';
 
-import {TASKS_ENDPOINT} from "../../utils/endPoints";
+import {TASKS_ENDPOINT, TOGGLE_STATUS_ENDPOINT} from "../../utils/endPoints";
 
 export function fetchTasks(page = 1, perPage = 10) {
     return async (dispatch) => {
@@ -97,6 +97,24 @@ export function deleteTask(id, page, perPage) {
             });
 
             dispatch(fetchTasks(page, perPage));
+        } catch (e) {
+            console.log(e.message);
+        }
+    }
+}
+
+export function toggleTaskStatus(id, _callback) {
+    return async (dispatch) => {
+        const authToken = `Bearer ${localStorage.getItem('token')}`;
+
+        try {
+            await axios.post(TOGGLE_STATUS_ENDPOINT.replace('$id', id), null, {
+                headers: {
+                    Authorization: authToken,
+                }
+            });
+            _callback();
+            dispatch({type: TOGGLE_TASK_STATUS_SUCCESS, payload: id});
         } catch (e) {
             console.log(e.message);
         }

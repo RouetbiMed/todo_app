@@ -8,7 +8,8 @@ import {
     EDIT_TASK_SUCCESS,
     HIDE_TASK_MODAL,
     SUBMIT_TASK_FORM,
-    SUBMIT_TASK_FORM_ERROR
+    SUBMIT_TASK_FORM_ERROR,
+    TOGGLE_TASK_STATUS_SUCCESS
 } from "../types";
 
 const INITIAL_STATE = {
@@ -53,6 +54,16 @@ export function tasksReducer(state = INITIAL_STATE, action) {
         case CREATE_TASK_SUCCESS:
         case EDIT_TASK_SUCCESS:
             return {...state, task: null, modalVisible: false, formLoading: false};
+        case TOGGLE_TASK_STATUS_SUCCESS:
+            const taskId = action.payload;
+            const tasks = state.data;
+            const newArray = tasks.map(task => {
+                if (task.id === taskId) {
+                    task.completed = task.completed ? 0 : 1;
+                }
+                return task;
+            });
+            return {...state, data: newArray};
         default:
             return state;
     }

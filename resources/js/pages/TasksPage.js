@@ -5,8 +5,6 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import Box from '@material-ui/core/Box';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -15,9 +13,10 @@ import DataTable from "react-data-table-component";
 import {makeStyles} from '@material-ui/core/styles';
 import {useDispatch, useSelector} from "react-redux";
 import {logout} from '../redux/actions/authActions';
-import {fetchTasks, createTask, updateTask, deleteTask} from '../redux/actions/tasksActions';
+import {fetchTasks, createTask, updateTask, deleteTask, toggleTaskStatus} from '../redux/actions/tasksActions';
 import FormDialog from "../components/FormDialog";
 import {CREATE_TASK, EDIT_TASK, HIDE_TASK_MODAL} from "../redux/types";
+import SwitchControl from "../components/SwitchControl";
 
 const useStyles = makeStyles((theme) => ({
     '@global': {
@@ -73,6 +72,10 @@ export default function TasksPage() {
         }
     };
 
+    const handleSwitchChange = (taskId, _callback) => {
+        dispatch(toggleTaskStatus(taskId, _callback));
+    };
+
     const columns = useMemo(() => {
         return [
             {
@@ -90,17 +93,7 @@ export default function TasksPage() {
                 sortable: false,
                 cell: row => (
                     <div>
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={true}
-                                    onChange={() => console.log('toggle', row)}
-                                    name="completed"
-                                    color="primary"
-                                />
-                            }
-                            label={<Typography className={classes.switchLabel}>Completed</Typography>}
-                        />
+                        <SwitchControl row={row} checked={!!row.completed} onChange={handleSwitchChange}/>
                         <IconButton
                             onClick={() => dispatch({type: EDIT_TASK, payload: row})}
                             color="primary"
@@ -140,7 +133,7 @@ export default function TasksPage() {
             </AppBar>
             <Container maxWidth="md" component="main" className={classes.pageContent}>
                 <Box className={classes.boxContainer} xs={12}>
-                    <Button onClick={() => {
+                    <Button color="primary" onClick={() => {
                         dispatch({type: CREATE_TASK})
                     }} className={classes.link}>
                         Create
