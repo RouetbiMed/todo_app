@@ -13,6 +13,10 @@ Copy the example env file and make the required configuration changes in the .en
 Install the js dependencies using yarn or npm
 
     yarn install    
+    
+Run this command to compile js & css files
+
+    yarn run dev        
         
 Install docker containers with sail package
 
