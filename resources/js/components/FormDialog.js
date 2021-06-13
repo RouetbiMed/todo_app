@@ -8,10 +8,12 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import DialogTitle from "@material-ui/core/DialogTitle";
+import {useSelector} from "react-redux";
 
 const FormDialog = (props) => {
     const {open, handleClose, handleSubmit, task} = props;
 
+    const {currentPage, perPage, formLoading} = useSelector((state) => state.tasks);
     const [name, setName] = useState({value: '', error: ''});
     const [description, setDescription] = useState({value: '', error: ''});
     const [status, setStatus] = useState(0);
@@ -22,16 +24,26 @@ const FormDialog = (props) => {
         setStatus(task ? task.completed : 0);
     }, [task]);
 
+    const handleCloseAction = () => {
+        setName({value: '', error: ''});
+        setDescription({value: '', error: ''});
+        setStatus(0);
+        handleClose();
+    };
+
     return (
         <Dialog
             fullWidth
             open={open}
             onClose={handleClose}
+            onBackdropClick={handleCloseAction}
             aria-labelledby="task-dialog"
         >
             <DialogTitle id="dialog-title">{task ? 'Edit' : 'Create'} Task</DialogTitle>
             <DialogContent>
                 <TextField
+                    error={!!name.error}
+                    helperText={name.error}
                     margin="dense"
                     id="name"
                     label="Name"
@@ -41,6 +53,8 @@ const FormDialog = (props) => {
                     onChange={e => setName({value: e.target.value, error: ''})}
                 />
                 <TextField
+                    error={!!description.error}
+                    helperText={description.error}
                     margin="dense"
                     id="description"
                     label="Description"
@@ -73,11 +87,29 @@ const FormDialog = (props) => {
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={handleClose} color="secondary">
+                <Button onClick={handleCloseAction} color="secondary">
                     Cancel
                 </Button>
                 <Button onClick={() => {
-                    handleSubmit(name.value, description.value, task ? task.id : null, status);
+                    if (formLoading) return;
+                    const trimmedName = name.value.trim();
+                    const trimmedDescription = description.value.trim();
+
+                    if (trimmedName === '') {
+                        setName({...name, error: 'Name is required'});
+                    }
+
+                    if (trimmedDescription === '') {
+                        setDescription({...description, error: 'Description is required'});
+                    }
+
+                    if (trimmedName && trimmedDescription) {
+                        handleSubmit(name.value, description.value, task ? task.id : null, status, currentPage, perPage, function () {
+                            setName({value: '', error: ''});
+                            setDescription({value: '', error: ''});
+                            setStatus(0);
+                        });
+                    }
                 }} color="primary">
                     Submit
                 </Button>

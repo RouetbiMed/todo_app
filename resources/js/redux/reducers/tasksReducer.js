@@ -6,7 +6,9 @@ import {
     EDIT_TASK,
     CREATE_TASK_SUCCESS,
     EDIT_TASK_SUCCESS,
-    HIDE_TASK_MODAL
+    HIDE_TASK_MODAL,
+    SUBMIT_TASK_FORM,
+    SUBMIT_TASK_FORM_ERROR
 } from "../types";
 
 const INITIAL_STATE = {
@@ -16,8 +18,10 @@ const INITIAL_STATE = {
     total: 0,
     perPage: 10,
     error: '',
+    submitError: '',
     task: null,
-    modalVisible: false
+    modalVisible: false,
+    formLoading: false,
 };
 
 export function tasksReducer(state = INITIAL_STATE, action) {
@@ -42,9 +46,13 @@ export function tasksReducer(state = INITIAL_STATE, action) {
             return {...state, task: null, modalVisible: false};
         case EDIT_TASK:
             return {...state, task: action.payload, modalVisible: true};
+        case SUBMIT_TASK_FORM:
+            return {...state, formLoading: true};
+        case SUBMIT_TASK_FORM_ERROR:
+            return {...state, formLoading: false, submitError: action.payload};
         case CREATE_TASK_SUCCESS:
         case EDIT_TASK_SUCCESS:
-            return {...state, task: null, modalVisible: false};
+            return {...state, task: null, modalVisible: false, formLoading: false};
         default:
             return state;
     }

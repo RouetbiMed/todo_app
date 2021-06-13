@@ -15,7 +15,7 @@ import DataTable from "react-data-table-component";
 import {makeStyles} from '@material-ui/core/styles';
 import {useDispatch, useSelector} from "react-redux";
 import {logout} from '../redux/actions/authActions';
-import {fetchTasks, createTask, updateTask} from '../redux/actions/tasksActions';
+import {fetchTasks, createTask, updateTask, deleteTask} from '../redux/actions/tasksActions';
 import FormDialog from "../components/FormDialog";
 import {CREATE_TASK, EDIT_TASK, HIDE_TASK_MODAL} from "../redux/types";
 
@@ -65,11 +65,11 @@ export default function TasksPage() {
         dispatch(logout());
     };
 
-    const handleSubmit = (name, description, id, status) => {
+    const handleSubmit = (name, description, id, status, page, perPage, _callback) => {
         if (!!id) {
-            dispatch(updateTask(id, name, description, status));
+            dispatch(updateTask(id, name, description, status, page, perPage));
         } else {
-            dispatch(createTask(name, description));
+            dispatch(createTask(name, description, _callback));
         }
     };
 
@@ -108,7 +108,7 @@ export default function TasksPage() {
                             <EditIcon/>
                         </IconButton>
                         <IconButton
-                            onClick={() => console.log('delete', row)}
+                            onClick={() => dispatch(deleteTask(row.id, currentPage, perPage))}
                             color="secondary"
                             aria-label="delete">
                             <DeleteIcon/>
@@ -120,7 +120,6 @@ export default function TasksPage() {
     }, []);
 
     const handlePageChange = page => {
-        console.log('perPage', perPage)
         dispatch(fetchTasks(page, perPage));
     };
 

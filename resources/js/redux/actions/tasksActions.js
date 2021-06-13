@@ -2,9 +2,9 @@ import {
     FETCH_TASKS,
     FETCH_TASKS_SUCCESS,
     FETCH_TASKS_FAILED,
-    CREATE_TASK,
     CREATE_TASK_SUCCESS,
-    EDIT_TASK_SUCCESS
+    EDIT_TASK_SUCCESS,
+    SUBMIT_TASK_FORM
 } from "../types";
 import axios from 'axios';
 
@@ -33,9 +33,9 @@ export function fetchTasks(page = 1, perPage = 10) {
     }
 }
 
-export function createTask(name, description) {
+export function createTask(name, description, _callback) {
     return async (dispatch) => {
-        dispatch({type: CREATE_TASK});
+        dispatch({type: SUBMIT_TASK_FORM});
 
         const authToken = `Bearer ${localStorage.getItem('token')}`;
         let formData = new FormData();
@@ -51,14 +51,17 @@ export function createTask(name, description) {
 
             dispatch({type: CREATE_TASK_SUCCESS});
             dispatch(fetchTasks());
+            if (_callback) _callback();
         } catch (e) {
             console.log(e.message);
         }
     }
 }
 
-export function updateTask(id, name, description, status) {
+export function updateTask(id, name, description, status, page, perPage) {
     return async (dispatch) => {
+        dispatch({type: SUBMIT_TASK_FORM});
+
         const authToken = `Bearer ${localStorage.getItem('token')}`;
 
         let formData = new FormData();
@@ -75,7 +78,25 @@ export function updateTask(id, name, description, status) {
             });
 
             dispatch({type: EDIT_TASK_SUCCESS});
-            dispatch(fetchTasks());
+            dispatch(fetchTasks(page, perPage));
+        } catch (e) {
+            console.log(e.message);
+        }
+    }
+}
+
+export function deleteTask(id, page, perPage) {
+    return async (dispatch) => {
+        const authToken = `Bearer ${localStorage.getItem('token')}`;
+
+        try {
+            const response = await axios.delete(`${TASKS_ENDPOINT}/${id}`, {
+                headers: {
+                    Authorization: authToken,
+                }
+            });
+
+            dispatch(fetchTasks(page, perPage));
         } catch (e) {
             console.log(e.message);
         }
